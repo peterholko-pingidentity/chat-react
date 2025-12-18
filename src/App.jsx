@@ -21,6 +21,33 @@ function App() {
     inputRef.current?.focus()
   }, [])
 
+  const getAccessToken = async () => {
+    try {
+      const response = await fetch('https://auth.pingone.com/484c8d69-2783-4b55-b787-be71c4cd1532/as/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: 'd37fdc79-c934-4b3a-a2f9-544227256b8f',
+          client_secret: '3gmReixQdKfEFqOJshD.zLT3tScqJV~AnbVib5PUlOs62dZ7b_MEaNaQPfG36DaQ',
+          scope: 'chatagent'
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error(`Failed to get access token: ${response.status}`)
+      }
+
+      const data = await response.json()
+      return data.access_token
+    } catch (err) {
+      console.error('Error fetching access token:', err)
+      throw err
+    }
+  }
+
   const sendMessage = async (e) => {
     e.preventDefault()
     
@@ -41,6 +68,9 @@ function App() {
     setIsLoading(true)
 
     try {
+      // Get fresh access token
+      const accessToken = await getAccessToken()
+
       // Call the agent via proxy (for local development)
       // const response = await fetch('/api', {
       //   method: 'POST',
@@ -54,9 +84,9 @@ function App() {
       const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2Fchat_agent-7nKEGmDGN1/invocations?qualifier=DEFAULT"
       const response = await fetch(`${AGENT_URL}`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer eyJraWQiOiIzYzFmMWY4MC1kYjczLTExZjAtYmE4ZC0xMzI3NzZkNjFhNDYiLCJhbGciOiJSUzI1NiJ9.eyJjbGllbnRfaWQiOiJkMzdmZGM3OS1jOTM0LTRiM2EtYTJmOS01NDQyMjcyNTZiOGYiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vNDg0YzhkNjktMjc4My00YjU1LWI3ODctYmU3MWM0Y2QxNTMyL2FzIiwianRpIjoiNWFkNTZhMDEtNzMzYy00YjQ4LWIzNWYtNjUzYzc5MDNjNjZmIiwiaWF0IjoxNzY2MDgwNjE2LCJleHAiOjE3NjYwODQyMTYsImF1ZCI6WyJDaGF0QWdlbnQiXSwic2NvcGUiOiJjaGF0YWdlbnQiLCJlbnYiOiI0ODRjOGQ2OS0yNzgzLTRiNTUtYjc4Ny1iZTcxYzRjZDE1MzIiLCJvcmciOiI1YmZjYzM3ZS1kOGZjLTQ4MTYtYjE5MS02YmI5YTY2NmFlNTgiLCJwMS5yaWQiOiI1YWQ1NmEwMS03MzNjLTRiNDgtYjM1Zi02NTNjNzkwM2M2NmYifQ.hkiHk-GQn2uADEpI6dpPcOVJIrkr4OvSQK5UzxW6cGCepFYUwMQUu4pHf7zmrqxq7ZoK7FeJJ8K16tcuXMFBM7NpW_OqsfRW2CO2U8FbgnxZzI0hKZjrNe0LD3Y9OeJFqD3Hsm25BNjRii_NpKl34UGOIBri9xR2f4OyMIGjlNN---aZZpABB1Qio23Q7AREaYC1OHKgSHxOKa95FGRrOXZ_ALU4ItmBBCLE5U63OQqtKDRBBTWSWkOyQfKoq49vsl5cGLosK2cwzIdFvB54ocEuzaWlUwZ9yvJgTiM2v9I57Z4ho6gwa5lDJ5MoJBiYFNFNOpWXnNSPFP5lmLm47w',
+          'Authorization': `Bearer ${accessToken}`,
           'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': 'session-12345678901234567890123456789012'
         },
         body: JSON.stringify({ prompt: userMessage })
