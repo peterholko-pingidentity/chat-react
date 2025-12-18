@@ -1,0 +1,233 @@
+/* DaVinci Authentication Overlay */
+.davinci-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 2rem;
+}
+
+/* Loading State */
+.davinci-loading {
+  text-align: center;
+  max-width: 400px;
+}
+
+.loading-icon {
+  font-size: 4rem;
+  color: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+  margin-bottom: 1.5rem;
+}
+
+.davinci-loading h2 {
+  color: var(--text-primary);
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.davinci-loading .loading-dots {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.davinci-loading .loading-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.davinci-loading .loading-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.davinci-loading .loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.davinci-loading .loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Error State */
+.davinci-error {
+  background: var(--bg-secondary);
+  border: 2px solid var(--error);
+  padding: 3rem;
+  max-width: 500px;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 4rem;
+  color: var(--error);
+  margin-bottom: 1.5rem;
+}
+
+.davinci-error h2 {
+  color: var(--text-primary);
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.davinci-error p {
+  color: var(--text-secondary);
+  font-family: 'Manrope', sans-serif;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.retry-btn {
+  background: var(--error);
+  color: var(--text-primary);
+  border: none;
+  padding: 0.875rem 2rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
+}
+
+.retry-btn:hover {
+  background: #ff6666;
+  transform: translateY(-2px);
+}
+
+.retry-btn:active {
+  transform: translateY(0);
+}
+
+.error-details {
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--bg-tertiary);
+}
+
+.error-details p {
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
+.error-details code {
+  background: var(--bg-tertiary);
+  color: var(--accent);
+  padding: 0.25rem 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
+  border: 1px solid var(--bg-primary);
+}
+
+/* Widget Wrapper */
+.davinci-widget-wrapper {
+  background: var(--bg-secondary);
+  border: 2px solid var(--accent);
+  padding: 3rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.davinci-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.davinci-logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.davinci-logo .logo-bracket {
+  color: var(--accent);
+}
+
+.davinci-logo .logo-text {
+  color: var(--text-primary);
+  margin: 0 0.5rem;
+}
+
+.davinci-header p {
+  color: var(--text-secondary);
+  font-family: 'Manrope', sans-serif;
+  font-size: 1rem;
+}
+
+/* Widget Container */
+.davinci-widget {
+  min-height: 300px;
+  color: var(--text-primary);
+}
+
+/* DaVinci widget styling overrides to match our theme */
+.davinci-widget input,
+.davinci-widget button,
+.davinci-widget select {
+  font-family: 'Manrope', sans-serif;
+}
+
+.davinci-widget input[type="text"],
+.davinci-widget input[type="password"],
+.davinci-widget input[type="email"] {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--bg-primary);
+  color: var(--text-primary);
+  padding: 0.875rem;
+  font-size: 1rem;
+}
+
+.davinci-widget input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.davinci-widget button[type="submit"] {
+  background: var(--accent);
+  color: var(--bg-primary);
+  border: none;
+  padding: 0.875rem 2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.davinci-widget button[type="submit"]:hover {
+  background: var(--accent-dim);
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .davinci-overlay {
+    padding: 1rem;
+  }
+
+  .davinci-widget-wrapper {
+    padding: 2rem 1.5rem;
+  }
+
+  .davinci-error {
+    padding: 2rem 1.5rem;
+  }
+}
