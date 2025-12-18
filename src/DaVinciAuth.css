@@ -6,7 +6,7 @@
   right: 0;
   bottom: 0;
   background: rgba(10, 15, 20, 0.75);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
