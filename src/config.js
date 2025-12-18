@@ -12,7 +12,7 @@ export const daVinciConfig = {
   region: "com",
 
   // Additional configuration
-  includeHttpCredentials: true, // Set to true to share cookies
+  includeHttpCredentials: false,
   nonce: 'auth-' + Date.now() // String to validate
 }
 

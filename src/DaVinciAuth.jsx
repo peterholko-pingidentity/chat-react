@@ -7,11 +7,16 @@ function DaVinciAuth({ children }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const [showWelcome, setShowWelcome] = useState(true)
+  const [showWidget, setShowWidget] = useState(false)
 
   const handleLoginClick = () => {
     setShowWelcome(false)
-    setIsLoading(true)
-    initializeDaVinci()
+    setShowWidget(true)
+    setError(null)
+    // Use a small delay to ensure the widget container is rendered in the DOM
+    setTimeout(() => {
+      initializeDaVinci()
+    }, 100)
   }
 
   const initializeDaVinci = async () => {
@@ -23,20 +28,29 @@ function DaVinciAuth({ children }) {
         return
       }
 
+      // Verify container exists
+      const widgetContainer = document.getElementById('davinci-widget-container')
+      if (!widgetContainer) {
+        console.error('Widget container not found in DOM')
+        throw new Error('Widget container not found. Please try again.')
+      }
+
+      console.log('Widget container found, fetching SDK token...')
       setIsLoading(true)
       setError(null)
 
       // Retrieve SDK Token from our secure server endpoint
-      // This keeps the API key secret on the server side
       const response = await fetch('/api/sdktoken', {
         method: 'GET'
       })
 
       if (!response.ok) {
-        throw new Error(`Failed to get SDK token: ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.message || `Failed to get SDK token: ${response.status}`)
       }
 
       const responseData = await response.json()
+      console.log('SDK token received successfully')
 
       // Configure DaVinci widget props
       const props = {
@@ -51,27 +65,22 @@ function DaVinciAuth({ children }) {
             nonce: daVinciConfig.nonce
           }
         },
-        useModal: true, // Use modal for popup behavior
+        useModal: false, // Render inline instead of modal
         successCallback,
         errorCallback,
         onCloseModal
       }
 
       // Render the DaVinci widget
-      console.log('Initializing DaVinci widget with props:', props)
-      const widgetContainer = document.getElementById('davinci-widget-container')
-
-      if (widgetContainer) {
-        window.davinci.skRenderScreen(widgetContainer, props)
-      } else {
-        throw new Error('Widget container not found')
-      }
-
+      console.log('Rendering DaVinci widget...')
+      window.davinci.skRenderScreen(widgetContainer, props)
       setIsLoading(false)
+      console.log('DaVinci widget rendered successfully')
     } catch (err) {
       console.error('Error initializing DaVinci:', err)
       setError(err.message)
       setIsLoading(false)
+      setShowWidget(false)
     }
   }
 
@@ -79,6 +88,7 @@ function DaVinciAuth({ children }) {
     console.log('DaVinci authentication successful:', response)
     setIsAuthenticated(true)
     setError(null)
+    setShowWidget(false)
   }
 
   const errorCallback = (error) => {
@@ -92,13 +102,17 @@ function DaVinciAuth({ children }) {
     // If not authenticated and modal is closed, show error
     if (!isAuthenticated) {
       setError('Authentication cancelled. Please authenticate to continue.')
+      setShowWidget(false)
     }
   }
 
   const retryAuth = () => {
     setError(null)
-    setIsLoading(true)
-    initializeDaVinci()
+    setShowWelcome(false)
+    setShowWidget(true)
+    setTimeout(() => {
+      initializeDaVinci()
+    }, 100)
   }
 
   return (
@@ -121,21 +135,8 @@ function DaVinciAuth({ children }) {
             </div>
           )}
 
-          {/* Show loading state */}
-          {isLoading && (
-            <div className="davinci-loading">
-              <div className="loading-icon">◆</div>
-              <h2>Loading authentication...</h2>
-              <div className="loading-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-          )}
-
           {/* Show error state */}
-          {error && (
+          {error && !showWidget && (
             <div className="davinci-error">
               <div className="error-icon">⚠</div>
               <h2>Authentication Error</h2>
@@ -149,8 +150,8 @@ function DaVinciAuth({ children }) {
             </div>
           )}
 
-          {/* Show DaVinci widget container (modal will be rendered here) */}
-          {!showWelcome && !isLoading && !error && (
+          {/* Show DaVinci widget container */}
+          {showWidget && (
             <div className="davinci-widget-wrapper">
               <div className="davinci-header">
                 <div className="davinci-logo">
@@ -160,7 +161,22 @@ function DaVinciAuth({ children }) {
                 </div>
                 <p>Please authenticate to access the chat agent</p>
               </div>
-              <div id="davinci-widget-container" className="davinci-widget"></div>
+              
+              {isLoading && (
+                <div className="davinci-loading">
+                  <div className="loading-icon">◆</div>
+                  <h2>Loading authentication...</h2>
+                  <div className="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              )}
+              
+              {!isLoading && (
+                <div id="davinci-widget-container" className="davinci-widget"></div>
+              )}
             </div>
           )}
         </div>
