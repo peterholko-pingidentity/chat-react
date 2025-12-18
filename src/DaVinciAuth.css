@@ -333,7 +333,13 @@
 /* DaVinci Embedding Overrides */
 /* These styles override DaVinci's default full-viewport positioning
    to make the flow fit cleanly within our scoped container */
-div.bg-light.d-flex.flex-column.justify-content-center.align-items-center.position-absolute.top-0.start-0.bottom-0.end-0 {
+
+/* Target the main DaVinci container with all possible class combinations */
+div.bg-light.d-flex.flex-column.justify-content-center.align-items-center.position-absolute.top-0.start-0.bottom-0.end-0,
+div.bg-light.d-flex.flex-column.justify-content-center.align-items-center.position-absolute,
+div[class*="bg-light"][class*="d-flex"][class*="position-absolute"],
+.davinci-widget > div[class*="position-absolute"],
+.davinci-widget > div[class*="bg-light"] {
   background-image: unset !important;
   background-size: unset !important;
   background-repeat: unset !important;
@@ -345,6 +351,21 @@ div.bg-light.d-flex.flex-column.justify-content-center.align-items-center.positi
   bottom: unset !important;
   position: relative !important;
   align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Target any absolutely positioned divs inside the widget container */
+#davinci-widget-container > div,
+#davinci-widget-container div[style*="position: absolute"],
+#davinci-widget-container div[style*="position:absolute"] {
+  position: relative !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 /* Ensure proper sizing within container */
@@ -364,6 +385,43 @@ div.bg-light.d-flex.flex-column.justify-content-center.align-items-center.positi
 /* Override any DaVinci padding/margin that might cause overflow */
 .davinci-widget * {
   box-sizing: border-box;
+}
+
+/* Reset positioning on direct children of widget container */
+#davinci-widget-container > div:first-child {
+  position: relative !important;
+  left: 0 !important;
+  top: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+
+/* Target QR code and verification content specifically */
+.davinci-widget h1,
+.davinci-widget h2,
+.davinci-widget h3,
+.davinci-widget p,
+.davinci-widget img,
+.davinci-widget canvas,
+.davinci-widget svg {
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Center text content */
+.davinci-widget {
+  text-align: center;
+}
+
+/* Ensure content flows naturally */
+#davinci-widget-container > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem;
 }
 
 /* Responsive */
