@@ -13,7 +13,7 @@ function DaVinciAuth({ children }) {
     setShowWelcome(false)
     setShowWidget(true)
     setError(null)
-    // Use a small delay to ensure the widget container is rendered in the DOM
+    // Delay to ensure container renders in DOM
     setTimeout(() => {
       initializeDaVinci()
     }, 100)
@@ -21,7 +21,7 @@ function DaVinciAuth({ children }) {
 
   const initializeDaVinci = async () => {
     try {
-      // Wait for DaVinci SDK to be available
+      // Wait for DaVinci SDK
       if (typeof window.davinci === 'undefined') {
         console.log('Waiting for DaVinci SDK to load...')
         setTimeout(initializeDaVinci, 100)
@@ -39,7 +39,7 @@ function DaVinciAuth({ children }) {
       setIsLoading(true)
       setError(null)
 
-      // Retrieve SDK Token from our secure server endpoint
+      // Get SDK Token
       const response = await fetch('/api/sdktoken', {
         method: 'GET'
       })
@@ -52,7 +52,7 @@ function DaVinciAuth({ children }) {
       const responseData = await response.json()
       console.log('SDK token received successfully')
 
-      // Configure DaVinci widget props
+      // Configure DaVinci widget
       const props = {
         config: {
           method: 'runFlow',
@@ -65,13 +65,13 @@ function DaVinciAuth({ children }) {
             nonce: daVinciConfig.nonce
           }
         },
-        useModal: false, // Render inline instead of modal
+        useModal: false,
         successCallback,
         errorCallback,
         onCloseModal
       }
 
-      // Render the DaVinci widget
+      // Render widget
       console.log('Rendering DaVinci widget...')
       window.davinci.skRenderScreen(widgetContainer, props)
       setIsLoading(false)
@@ -99,7 +99,6 @@ function DaVinciAuth({ children }) {
 
   const onCloseModal = () => {
     console.log('DaVinci modal closed')
-    // If not authenticated and modal is closed, show error
     if (!isAuthenticated) {
       setError('Authentication cancelled. Please authenticate to continue.')
       setShowWidget(false)
@@ -117,13 +116,10 @@ function DaVinciAuth({ children }) {
 
   return (
     <>
-      {/* Always render the children (chat UI) */}
       {children}
 
-      {/* Show overlay with auth widget when not authenticated */}
       {!isAuthenticated && (
         <div className="davinci-overlay">
-          {/* Show welcome screen */}
           {showWelcome && (
             <div className="davinci-welcome">
               <div className="welcome-icon">◆</div>
@@ -135,7 +131,6 @@ function DaVinciAuth({ children }) {
             </div>
           )}
 
-          {/* Show error state */}
           {error && !showWidget && (
             <div className="davinci-error">
               <div className="error-icon">⚠</div>
@@ -145,12 +140,11 @@ function DaVinciAuth({ children }) {
                 Retry Authentication
               </button>
               <div className="error-details">
-                <p>Please check your DaVinci configuration in <code>src/config.js</code></p>
+                <p>Please check your DaVinci configuration</p>
               </div>
             </div>
           )}
 
-          {/* Show DaVinci widget container */}
           {showWidget && (
             <div className="davinci-widget-wrapper">
               <div className="davinci-header">
@@ -162,20 +156,36 @@ function DaVinciAuth({ children }) {
                 <p>Please authenticate to access the chat agent</p>
               </div>
               
+              {/* Container ALWAYS rendered */}
+              <div 
+                id="davinci-widget-container" 
+                className="davinci-widget"
+                style={{ minHeight: '300px', position: 'relative' }}
+              ></div>
+
+              {/* Loading overlay */}
               {isLoading && (
-                <div className="davinci-loading">
+                <div style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  textAlign: 'center',
+                  zIndex: 10
+                }}>
                   <div className="loading-icon">◆</div>
-                  <h2>Loading authentication...</h2>
+                  <h2 style={{ 
+                    color: 'var(--text-primary)', 
+                    fontFamily: 'var(--font-display)', 
+                    fontSize: '1.5rem',
+                    marginBottom: '1rem'
+                  }}>Loading...</h2>
                   <div className="loading-dots">
                     <span></span>
                     <span></span>
                     <span></span>
                   </div>
                 </div>
-              )}
-              
-              {!isLoading && (
-                <div id="davinci-widget-container" className="davinci-widget"></div>
               )}
             </div>
           )}
