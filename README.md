@@ -36,29 +36,34 @@ This application uses PingOne DaVinci for authentication. Before running the app
 
 ### Configuration Steps
 
-1. Open `src/config.js` in your editor
+1. **Create a `.env` file** by copying the example file:
+   ```bash
+   cp .env.example .env
+   ```
 
-2. Update the following values with your DaVinci environment settings:
+2. **Edit the `.env` file** with your DaVinci credentials:
+   ```bash
+   # DaVinci Configuration
+   DAVINCI_COMPANY_ID=your_company_id_here
+   DAVINCI_API_KEY=your_api_key_here
+   DAVINCI_REGION=com
+   PORT=3001
+   ```
 
-```javascript
-export const daVinciConfig = {
-  // Your PingOne company/environment ID
-  companyId: "YOUR_COMPANY_ID",
+   **IMPORTANT**: The API key is stored server-side in `.env` for security. Never commit this file to git (it's already in `.gitignore`).
 
-  // Your DaVinci API Key from the DaVinci application
-  apiKey: "YOUR_DAVINCI_API_KEY",
+3. **Update `src/config.js`** with your public DaVinci settings:
+   ```javascript
+   export const daVinciConfig = {
+     companyId: "YOUR_COMPANY_ID",  // Same as in .env
+     policyId: "YOUR_POLICY_ID",
+     region: "com",  // Same as in .env
+     includeHttpCredentials: true,
+     nonce: 'auth-' + Date.now()
+   }
+   ```
 
-  // Your DaVinci flow policy ID
-  policyId: "YOUR_POLICY_ID",
-
-  // PingOne region: 'com' (North America), 'eu' (Europe), 'asia' (Asia Pacific), 'ca' (Canada)
-  region: "com",
-
-  // Additional configuration
-  includeHttpCredentials: true,
-  nonce: 'auth-' + Date.now()
-}
-```
+   Note: The `apiKey` is no longer in this file - it's kept secure server-side.
 
 ### Finding Your DaVinci Credentials
 
@@ -66,6 +71,48 @@ export const daVinciConfig = {
 2. **API Key**: Generated in your DaVinci application settings
 3. **Policy ID**: The flow policy ID from your DaVinci flow
 4. **Region**: Based on your PingOne deployment region
+
+### Getting the SDK Token (Security Implementation)
+
+When implementing a DaVinci application integration using the widget method, be aware that the `POST <authPath>/<companyID>/davinci/policy/<davinciFlowPolicyID>/start` request that invokes the flow takes an SDK token to authenticate. However, the call to get a DaVinci SDK token, `GET <orchestratePath>/company/<companyID>/sdktoken`, requires the application's API key to authenticate.
+
+**This application implements a secure server-side solution** to protect your API key:
+
+1. **Server-side (`server.js`)**: Handles SDK token requests with the API key stored in `.env`
+2. **Client-side (`DaVinciAuth.jsx`)**: Calls the local server endpoint at `/api/sdktoken`
+3. **Proxy (`vite.config.js`)**: Routes `/api/sdktoken` to the Node.js server on port 3001
+
+The server implementation in `server.js`:
+
+```javascript
+/************************
+* DaVinci components
+************************/
+
+// Get a Widget sdkToken
+async function getDVToken() {
+  const companyId = process.env.DAVINCI_COMPANY_ID
+  const apiKey = process.env.DAVINCI_API_KEY
+  const region = process.env.DAVINCI_REGION || 'com'
+
+  const url = `https://orchestrate-api.pingone.${region}/v1/company/${companyId}/sdktoken`
+
+  const response = await fetch(url, {
+    headers: {
+      "X-SK-API-KEY": apiKey
+    },
+    method: "GET"
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to get SDK token: ${response.status}`)
+  }
+
+  return await response.json()
+}
+```
+
+This ensures your API key is never exposed to the browser or client-side code.
 
 ### Authentication Flow
 
@@ -83,42 +130,60 @@ To test the authentication flow:
 npm run dev
 ```
 
+This command starts **both** the SDK token server (port 3001) and the React development server (port 3000).
+
 You should see:
-1. Loading screen while DaVinci initializes
-2. Authentication popup/modal
-3. After successful authentication, the chat interface appears
+1. Both servers starting in your terminal
+2. Loading screen while DaVinci initializes
+3. Authentication popup/modal
+4. After successful authentication, the chat interface appears
 
 ### Troubleshooting Authentication
 
 **Error**: "Failed to get SDK token"
-- Check that your `apiKey` is correct in `src/config.js`
+- Check that your `.env` file exists and has the correct `DAVINCI_API_KEY`
 - Verify the API key is active in your DaVinci application
+- Ensure the server is running on port 3001
 
 **Error**: "Authentication failed"
-- Verify your `policyId` matches your DaVinci flow
+- Verify your `policyId` matches your DaVinci flow in `src/config.js`
 - Check that the flow is published and active
+- Ensure `companyId` matches in both `.env` and `src/config.js`
 
 **Error**: "Widget container not found"
 - This is a rare initialization error - try refreshing the page
 - Check browser console for additional details
 
+**Error**: "Server not responding"
+- Check that the SDK token server is running (npm run server)
+- Verify the `.env` file is properly configured
+- Check the terminal for server error messages
+
 ## Running the Application
 
 ### Development Mode
 
-1. Ensure your chat agent is running:
-```bash
-# In your chat-agent directory
-python main.py
-# Should be running on http://localhost:8080
-```
+1. Ensure your `.env` file is configured (see Configuration Steps above)
 
-2. Start the React development server:
+2. Start the application (runs both server and client):
 ```bash
 npm run dev
 ```
 
+This will start:
+- SDK Token Server on `http://localhost:3001`
+- React Dev Server on `http://localhost:3000`
+
 3. Open your browser to `http://localhost:3000`
+
+Alternatively, you can run the servers separately:
+```bash
+# Terminal 1: Start SDK token server
+npm run server
+
+# Terminal 2: Start React development server
+npm run client
+```
 
 ### Production Build
 
@@ -152,17 +217,29 @@ Response back to UI
 
 The Vite development server is configured to proxy API requests:
 
+**SDK Token Requests:**
+- Frontend calls: `GET /api/sdktoken`
+- Vite forwards to: `http://localhost:3001/api/sdktoken`
+- Server handles authentication with DaVinci
+
+**Chat Agent Requests (commented out by default):**
 - Frontend calls: `POST /api`
-- Vite forwards to: `POST http://localhost:8080/invocations`
+- Vite would forward to: `POST http://localhost:8080/invocations`
 
 This is configured in `vite.config.js`:
 ```javascript
 proxy: {
-  '/api': {
-    target: 'http://localhost:8080',
-    changeOrigin: true,
-    rewrite: (path) => path.replace(/^\/api/, '/invocations')
-  }
+  // Proxy SDK token requests to our secure server
+  '/api/sdktoken': {
+    target: 'http://localhost:3001',
+    changeOrigin: true
+  },
+  // Proxy chat agent requests (uncomment when needed)
+  // '/api': {
+  //   target: 'http://localhost:8080',
+  //   changeOrigin: true,
+  //   rewrite: (path) => path.replace(/^\/api/, '/invocations')
+  // }
 }
 ```
 
@@ -191,11 +268,14 @@ chat-agent-ui/
 │   ├── App.css              # Chat component styles
 │   ├── DaVinciAuth.jsx      # DaVinci authentication wrapper
 │   ├── DaVinciAuth.css      # Authentication styles
-│   ├── config.js            # DaVinci configuration
+│   ├── config.js            # DaVinci public configuration
 │   ├── main.jsx             # React entry point
 │   └── index.css            # Global styles and theme
+├── server.js                # Express server for SDK token (NEW)
+├── .env                     # Environment variables (not in git) (NEW)
+├── .env.example             # Example environment file (NEW)
 ├── index.html               # HTML entry point with DaVinci SDK
-├── vite.config.js           # Vite configuration
+├── vite.config.js           # Vite configuration with proxies
 ├── package.json             # Dependencies and scripts
 └── README.md               # This file
 ```
