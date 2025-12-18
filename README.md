@@ -4,6 +4,7 @@ A modern React-based chat interface for communicating with your chat agent.
 
 ## Features
 
+- ✅ DaVinci authentication popup before chat access
 - ✅ Real-time chat interface with distinctive brutalist-minimal design
 - ✅ Auto-scrolling to latest messages
 - ✅ Loading states and error handling
@@ -28,6 +29,78 @@ cd chat-agent-ui
 ```bash
 npm install
 ```
+
+## DaVinci Authentication Configuration
+
+This application uses PingOne DaVinci for authentication. Before running the app, you need to configure your DaVinci credentials.
+
+### Configuration Steps
+
+1. Open `src/config.js` in your editor
+
+2. Update the following values with your DaVinci environment settings:
+
+```javascript
+export const daVinciConfig = {
+  // Your PingOne company/environment ID
+  companyId: "YOUR_COMPANY_ID",
+
+  // Your DaVinci API Key from the DaVinci application
+  apiKey: "YOUR_DAVINCI_API_KEY",
+
+  // Your DaVinci flow policy ID
+  policyId: "YOUR_POLICY_ID",
+
+  // PingOne region: 'com' (North America), 'eu' (Europe), 'asia' (Asia Pacific), 'ca' (Canada)
+  region: "com",
+
+  // Additional configuration
+  includeHttpCredentials: true,
+  nonce: 'auth-' + Date.now()
+}
+```
+
+### Finding Your DaVinci Credentials
+
+1. **Company ID**: Your PingOne environment ID (found in PingOne Admin Console)
+2. **API Key**: Generated in your DaVinci application settings
+3. **Policy ID**: The flow policy ID from your DaVinci flow
+4. **Region**: Based on your PingOne deployment region
+
+### Authentication Flow
+
+1. User opens the application
+2. DaVinci authentication popup appears
+3. User authenticates through DaVinci flow
+4. On success, chatbot interface is displayed
+5. On error, retry option is available
+
+### Testing Authentication
+
+To test the authentication flow:
+
+```bash
+npm run dev
+```
+
+You should see:
+1. Loading screen while DaVinci initializes
+2. Authentication popup/modal
+3. After successful authentication, the chat interface appears
+
+### Troubleshooting Authentication
+
+**Error**: "Failed to get SDK token"
+- Check that your `apiKey` is correct in `src/config.js`
+- Verify the API key is active in your DaVinci application
+
+**Error**: "Authentication failed"
+- Verify your `policyId` matches your DaVinci flow
+- Check that the flow is published and active
+
+**Error**: "Widget container not found"
+- This is a rare initialization error - try refreshing the page
+- Check browser console for additional details
 
 ## Running the Application
 
@@ -114,14 +187,17 @@ proxy: {
 ```
 chat-agent-ui/
 ├── src/
-│   ├── App.jsx          # Main React component with chat logic
-│   ├── App.css          # Component styles
-│   ├── main.jsx         # React entry point
-│   └── index.css        # Global styles
-├── index.html           # HTML entry point
-├── vite.config.js       # Vite configuration with proxy
-├── package.json         # Dependencies and scripts
-└── README.md           # This file
+│   ├── App.jsx              # Main chat component
+│   ├── App.css              # Chat component styles
+│   ├── DaVinciAuth.jsx      # DaVinci authentication wrapper
+│   ├── DaVinciAuth.css      # Authentication styles
+│   ├── config.js            # DaVinci configuration
+│   ├── main.jsx             # React entry point
+│   └── index.css            # Global styles and theme
+├── index.html               # HTML entry point with DaVinci SDK
+├── vite.config.js           # Vite configuration
+├── package.json             # Dependencies and scripts
+└── README.md               # This file
 ```
 
 ## Design Choices
