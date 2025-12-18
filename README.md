@@ -67,6 +67,32 @@ export const daVinciConfig = {
 3. **Policy ID**: The flow policy ID from your DaVinci flow
 4. **Region**: Based on your PingOne deployment region
 
+### Getting the SDK Token
+
+When implementing a DaVinci application integration using the widget method, be aware that the `POST <authPath>/<companyID>/davinci/policy/<davinciFlowPolicyID>/start` request that invokes the flow takes an SDK token to authenticate. However, the call to get a DaVinci SDK token, `GET <orchestratePath>/company/<companyID>/sdktoken`, requires the application's API key to authenticate.
+
+The following sample shows a server-side code snippet from a `server.js` file used to generate the DaVinci SDK token without exposing the application's API key.
+
+```javascript
+/************************
+* DaVinci components
+************************/
+
+// Get a Widget sdkToken
+function getDVToken(cb) {
+  const url = 'https://orchestrate-api.pingone.<region>/v1/company/${companyId}/sdktoken';
+  fetch(url, {
+    headers: {
+      "X-SK-API-KEY":  <yourDavinciAppApiKey>
+    },
+    method: "GET"
+  })
+  .then(res => res.json())
+  .then(data => cb(data))
+  .catch(err => console.log("Error: ", err));
+}
+```
+
 ### Authentication Flow
 
 1. User opens the application
