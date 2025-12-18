@@ -135,9 +135,18 @@ function App() {
       <header className="header">
         <div className="header-content">
           <div className="logo">
-            <div className="logo-icon">
+            <img
+              src="/tapgun-logo.png"
+              alt="TAPGUN"
+              className="logo-image"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            <div className="logo-icon" style={{ display: 'none' }}>
               <span className="logo-bracket">{'['}</span>
-              <span className="logo-text">AGENT</span>
+              <span className="logo-text">TAPGUN</span>
               <span className="logo-bracket">{']'}</span>
             </div>
           </div>
@@ -153,9 +162,9 @@ function App() {
         <div className="chat-container">
           {messages.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">◆</div>
+              <div className="empty-icon">★</div>
               <h2>Ready to assist</h2>
-              <p>Send a message to start the conversation</p>
+              <p>Send a message to engage</p>
             </div>
           ) : (
             <div className="messages">
