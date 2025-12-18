@@ -24,23 +24,6 @@
   max-width: 500px;
   text-align: center;
   animation: fadeIn 0.4s ease-out;
-  position: relative;
-}
-
-.davinci-welcome::before {
-  content: '';
-  position: absolute;
-  top: -3px;
-  left: -3px;
-  right: -3px;
-  height: 6px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--accent) 0px,
-    var(--accent) 30px,
-    transparent 30px,
-    transparent 35px
-  );
 }
 
 .welcome-icon {
@@ -259,23 +242,6 @@
   width: 100%;
   max-height: 80vh;
   overflow-y: auto;
-  position: relative;
-}
-
-.davinci-widget-wrapper::before {
-  content: '';
-  position: absolute;
-  top: -3px;
-  left: -3px;
-  right: -3px;
-  height: 6px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--accent) 0px,
-    var(--accent) 30px,
-    transparent 30px,
-    transparent 35px
-  );
 }
 
 .davinci-header {
