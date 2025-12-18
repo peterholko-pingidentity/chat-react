@@ -108,79 +108,72 @@ function DaVinciAuth({ children }) {
     initializeDaVinci()
   }
 
-  // Show welcome screen
-  if (showWelcome) {
-    return (
-      <div className="davinci-overlay">
-        <div className="davinci-welcome">
-          <div className="welcome-icon">◆</div>
-          <h1>Thanks for loading the TAPGUN</h1>
-          <p>Before continuing you must login</p>
-          <button onClick={handleLoginClick} className="login-btn">
-            Login
-          </button>
-        </div>
-      </div>
-    )
-  }
+  return (
+    <>
+      {/* Always render the children (chat UI) */}
+      {children}
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="davinci-overlay">
-        <div className="davinci-loading">
-          <div className="loading-icon">◆</div>
-          <h2>Loading authentication...</h2>
-          <div className="loading-dots">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Show error state
-  if (error && !isAuthenticated) {
-    return (
-      <div className="davinci-overlay">
-        <div className="davinci-error">
-          <div className="error-icon">⚠</div>
-          <h2>Authentication Error</h2>
-          <p>{error}</p>
-          <button onClick={retryAuth} className="retry-btn">
-            Retry Authentication
-          </button>
-          <div className="error-details">
-            <p>Please check your DaVinci configuration in <code>src/config.js</code></p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Show DaVinci widget container (modal will be rendered here)
-  if (!isAuthenticated) {
-    return (
-      <div className="davinci-overlay">
-        <div className="davinci-widget-wrapper">
-          <div className="davinci-header">
-            <div className="davinci-logo">
-              <span className="logo-bracket">{'['}</span>
-              <span className="logo-text">AUTHENTICATE</span>
-              <span className="logo-bracket">{']'}</span>
+      {/* Show overlay with auth widget when not authenticated */}
+      {!isAuthenticated && (
+        <div className="davinci-overlay">
+          {/* Show welcome screen */}
+          {showWelcome && (
+            <div className="davinci-welcome">
+              <div className="welcome-icon">◆</div>
+              <h1>Thanks for loading the TAPGUN</h1>
+              <p>Before continuing you must login</p>
+              <button onClick={handleLoginClick} className="login-btn">
+                Login
+              </button>
             </div>
-            <p>Please authenticate to access the chat agent</p>
-          </div>
-          <div id="davinci-widget-container" className="davinci-widget"></div>
-        </div>
-      </div>
-    )
-  }
+          )}
 
-  // User is authenticated, render the protected content
-  return <>{children}</>
+          {/* Show loading state */}
+          {isLoading && (
+            <div className="davinci-loading">
+              <div className="loading-icon">◆</div>
+              <h2>Loading authentication...</h2>
+              <div className="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          )}
+
+          {/* Show error state */}
+          {error && (
+            <div className="davinci-error">
+              <div className="error-icon">⚠</div>
+              <h2>Authentication Error</h2>
+              <p>{error}</p>
+              <button onClick={retryAuth} className="retry-btn">
+                Retry Authentication
+              </button>
+              <div className="error-details">
+                <p>Please check your DaVinci configuration in <code>src/config.js</code></p>
+              </div>
+            </div>
+          )}
+
+          {/* Show DaVinci widget container (modal will be rendered here) */}
+          {!showWelcome && !isLoading && !error && (
+            <div className="davinci-widget-wrapper">
+              <div className="davinci-header">
+                <div className="davinci-logo">
+                  <span className="logo-bracket">{'['}</span>
+                  <span className="logo-text">AUTHENTICATE</span>
+                  <span className="logo-bracket">{']'}</span>
+                </div>
+                <p>Please authenticate to access the chat agent</p>
+              </div>
+              <div id="davinci-widget-container" className="davinci-widget"></div>
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  )
 }
 
 export default DaVinciAuth
