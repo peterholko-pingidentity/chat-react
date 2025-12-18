@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { daVinciConfig, getOrchestrateUrl, getAuthApiRoot } from './config'
+import { daVinciConfig, getAuthApiRoot } from './config'
 import './DaVinciAuth.css'
 
 function DaVinciAuth({ children }) {
@@ -26,18 +26,11 @@ function DaVinciAuth({ children }) {
       setIsLoading(true)
       setError(null)
 
-      // Build the headers
-      const headers = new Headers()
-      headers.append('X-SK-API-KEY', daVinciConfig.apiKey)
-
-      const requestOptions = {
-        method: 'GET',
-        headers: headers,
-        redirect: 'follow'
-      }
-
-      // Retrieve SK Token
-      const response = await fetch(getOrchestrateUrl(), requestOptions)
+      // Retrieve SDK Token from our secure server endpoint
+      // This keeps the API key secret on the server side
+      const response = await fetch('/api/sdktoken', {
+        method: 'GET'
+      })
 
       if (!response.ok) {
         throw new Error(`Failed to get SDK token: ${response.status}`)
