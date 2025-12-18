@@ -4,12 +4,15 @@ import './DaVinciAuth.css'
 
 function DaVinciAuth({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [showWelcome, setShowWelcome] = useState(true)
 
-  useEffect(() => {
+  const handleLoginClick = () => {
+    setShowWelcome(false)
+    setIsLoading(true)
     initializeDaVinci()
-  }, [])
+  }
 
   const initializeDaVinci = async () => {
     try {
@@ -103,6 +106,22 @@ function DaVinciAuth({ children }) {
     setError(null)
     setIsLoading(true)
     initializeDaVinci()
+  }
+
+  // Show welcome screen
+  if (showWelcome) {
+    return (
+      <div className="davinci-overlay">
+        <div className="davinci-welcome">
+          <div className="welcome-icon">◆</div>
+          <h1>Thanks for loading the TAPGUN</h1>
+          <p>Before continuing you must login</p>
+          <button onClick={handleLoginClick} className="login-btn">
+            Login
+          </button>
+        </div>
+      </div>
+    )
   }
 
   // Show loading state
