@@ -317,6 +317,11 @@
 .davinci-widget {
   min-height: 300px;
   color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
 }
 
 /* DaVinci widget styling overrides to match our theme */
@@ -357,6 +362,42 @@
 .davinci-widget button[type="submit"]:hover {
   background: var(--accent-light);
   box-shadow: 0 0 20px rgba(227, 24, 55, 0.4);
+}
+
+/* DaVinci Embedding Overrides */
+/* These styles override DaVinci's default full-viewport positioning
+   to make the flow fit cleanly within our scoped container */
+div.bg-light.d-flex.flex-column.justify-content-center.align-items-center.position-absolute.top-0.start-0.bottom-0.end-0 {
+  background-image: unset !important;
+  background-size: unset !important;
+  background-repeat: unset !important;
+  --bs-bg-opacity: 0 !important;
+  background-color: unset !important;
+  right: unset !important;
+  left: unset !important;
+  top: unset !important;
+  bottom: unset !important;
+  position: relative !important;
+  align-items: stretch !important;
+}
+
+/* Ensure proper sizing within container */
+.davinci-widget > div {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Ensure forms and content within DaVinci widget are properly constrained */
+.davinci-widget form,
+.davinci-widget .sk-widget {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+}
+
+/* Override any DaVinci padding/margin that might cause overflow */
+.davinci-widget * {
+  box-sizing: border-box;
 }
 
 /* Responsive */
