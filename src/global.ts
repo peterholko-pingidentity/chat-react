@@ -1,9 +1,7 @@
-let userToken: string | null = null;
-
 export function getUserToken() {
-  return userToken;
+  return localStorage.getItem('userToken');
 }
 
-export function setUserToken(token: string | null) {
-  userToken = token;
+export function setUserToken(token: string) {
+  localStorage.setItem('userToken', token);
 }

@@ -87,7 +87,7 @@ function DaVinciAuth({ children }) {
 
   const successCallback = (response) => {
     console.log('DaVinci authentication successful:', response)
-    setUserToken(response.userToken)
+    setUserToken(response.access_token)
     setIsAuthenticated(true)
     setError(null)
     setShowWidget(false)

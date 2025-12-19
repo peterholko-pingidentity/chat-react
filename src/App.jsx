@@ -12,7 +12,7 @@ function App() {
   const inputRef = useRef(null)
 
   // Agent URL configuration
-  const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2FChatAgent11-Hg1jfJ93FZ/invocations?qualifier=DEFAULT"
+  const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2FChatAgent12-UMPqgaG6yT/invocations?qualifier=DEFAULT"
 
   // ****************************************
   // Check URL Parameters for auth code
@@ -65,7 +65,8 @@ function App() {
       console.log('Expires in:', data.expires_in)
       
       setUserToken(data.access_token)
-      console.log('Setting user token: ', userToken)
+
+      window.close()
       
       // Clean up the URL by removing the code parameter
       const newUrl = window.location.origin + window.location.pathname
@@ -231,7 +232,18 @@ function App() {
           <a
             key={index}
             href={part}
-            target="_blank"
+              onClick={(e) => {
+                e.preventDefault();
+                const width = 600;
+                const height = 700;
+                const left = (screen.width / 2) - (width / 2);
+                const top = (screen.height / 2) - (height / 2);
+                window.open(
+                  part,
+                  '_blank',
+                  `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes`
+                );
+              }}
             rel="noopener noreferrer"
             className="message-link"
           >
