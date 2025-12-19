@@ -6,18 +6,18 @@ function App() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [accessToken, setAccessToken] = useState(null)
+  const [globalAccessToken, setAccessToken] = useState(null)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
   // Agent URL configuration
   const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2Fchat_agent-7nKEGmDGN1/invocations?qualifier=DEFAULT"
 
+  // ****************************************
   // Check URL Parameters for auth code
+  // ****************************************
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
-    
-    // Log all parameters
     urlParams.forEach((value, key) => {
       console.log(`Params -> ${key} : ${value}`)
     })
@@ -30,6 +30,9 @@ function App() {
     }
   }, [])
 
+  // ****************************************
+  // Exchange authorization code for access token
+  // ****************************************
   const exchangeAuthCodeForToken = async (authCode) => {
     try {
       console.log('Exchanging authorization code for access token...')
@@ -66,15 +69,17 @@ function App() {
       // Clean up the URL by removing the code parameter
       const newUrl = window.location.origin + window.location.pathname
       window.history.replaceState({}, document.title, newUrl)
-      
       console.log('URL cleaned up, code parameter removed')
+      
     } catch (err) {
       console.error('Error exchanging authorization code:', err)
       setError(err.message)
     }
   }
 
+  // ****************************************
   // Extract a short agent name from the URL
+  // ****************************************
   const getAgentDisplayName = (url) => {
     try {
       const match = url.match(/runtime%2F([^/]+)/)
@@ -100,13 +105,10 @@ function App() {
     inputRef.current?.focus()
   }, [])
 
+  // ****************************************
+  // Get access token using client credentials
+  // ****************************************
   const getAccessToken = async () => {
-    // If we already have a token from auth code flow, use it
-    if (accessToken) {
-      console.log('Using existing access token from authorization code flow')
-      return accessToken
-    }
-
     // Otherwise fall back to client credentials flow
     try {
       console.log('Using client credentials flow to get access token')
@@ -135,6 +137,9 @@ function App() {
     }
   }
 
+  // ****************************************
+  // Send message to agent
+  // ****************************************
   const sendMessage = async (e) => {
     e.preventDefault()
     
@@ -156,17 +161,17 @@ function App() {
 
     try {
       // Get fresh access token
-      const currentAccessToken = await getAccessToken()
+      const accessToken = await getAccessToken()
 
       // Call the agent directly (for production)
       const response = await fetch(`${AGENT_URL}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${currentAccessToken}`,
+          'Authorization': `Bearer ${accessToken}`,
           'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': 'session-12345678901234567890123456789012'
         },
-        body: JSON.stringify({ prompt: userMessage, accessToken: accessToken })
+        body: JSON.stringify({ prompt: userMessage, accessToken: globalAccessToken })
       })
 
       if (!response.ok) {
