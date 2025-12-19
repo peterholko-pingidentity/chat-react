@@ -122,7 +122,7 @@ function DaVinciAuth({ children }) {
         <div className="davinci-overlay">
           {showWelcome && (
             <div className="davinci-welcome">
-              <div className="welcome-icon">◆</div>
+              <div className="welcome-icon">⌖</div>
               <h1>Thanks for loading the TAPGUN</h1>
               <p>Before continuing you must login</p>
               <button onClick={handleLoginClick} className="login-btn">
@@ -173,7 +173,7 @@ function DaVinciAuth({ children }) {
                   textAlign: 'center',
                   zIndex: 10
                 }}>
-                  <div className="loading-icon">◆</div>
+                  <div className="loading-icon">⌖</div>
                   <h2 style={{ 
                     color: 'var(--text-primary)', 
                     fontFamily: 'var(--font-display)', 

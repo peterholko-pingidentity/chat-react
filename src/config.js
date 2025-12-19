@@ -13,7 +13,7 @@ export const daVinciConfig = {
 
   // Additional configuration
   includeHttpCredentials: false,
-  nonce: 'auth-' + Date.now() // String to validate
+  nonce: 'auth-' + Date.now()
 }
 
 // Helper function to get the auth API root

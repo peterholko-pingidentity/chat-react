@@ -9,20 +9,26 @@ function App() {
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
+  // Add this to capture query parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    urlParams.forEach((value, key) => {
+      console.log(`Param -> ${key} : ${value}`)
+    })
+    console.log('=== URL Query Parameters ===')    
+    console.log('Full URL:', window.location.href)
+  }, []) // Empty dependency array = runs once on mount
+
   // Agent URL configuration
   const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2Fchat_agent-7nKEGmDGN1/invocations?qualifier=DEFAULT"
 
   // Extract a short agent name from the URL
   const getAgentDisplayName = (url) => {
     try {
-      // Extract the runtime name from AWS Bedrock URL pattern
-      // Example: .../runtime/chat_agent-7nKEGmDGN1/...
       const match = url.match(/runtime%2F([^/]+)/)
       if (match && match[1]) {
-        // URL decode and return the runtime name
         return decodeURIComponent(match[1])
       }
-      // Fallback: try to extract hostname
       const urlObj = new URL(url)
       return urlObj.hostname.split('.')[0]
     } catch {
