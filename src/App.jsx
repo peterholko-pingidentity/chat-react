@@ -6,13 +6,12 @@ function App() {
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [accessToken, setAccessToken] = useState(null)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
   // Agent URL configuration
   const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2Fchat_agent-7nKEGmDGN1/invocations?qualifier=DEFAULT"
-
-  const GLOBAL_ACCESS_TOKEN = ""
 
   // Check URL Parameters for auth code
   useEffect(() => {
@@ -157,17 +156,17 @@ function App() {
 
     try {
       // Get fresh access token
-      const accessToken = await getAccessToken()
+      const currentAccessToken = await getAccessToken()
 
       // Call the agent directly (for production)
       const response = await fetch(`${AGENT_URL}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${currentAccessToken}`,
           'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': 'session-12345678901234567890123456789012'
         },
-        body: JSON.stringify({ prompt: userMessage, accessToken: GLOBAL_ACCESS_TOKEN })
+        body: JSON.stringify({ prompt: userMessage, accessToken: accessToken })
       })
 
       if (!response.ok) {
