@@ -9,6 +9,27 @@ function App() {
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
+  // Agent URL configuration
+  const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2Fchat_agent-7nKEGmDGN1/invocations?qualifier=DEFAULT"
+
+  // Extract a short agent name from the URL
+  const getAgentDisplayName = (url) => {
+    try {
+      // Extract the runtime name from AWS Bedrock URL pattern
+      // Example: .../runtime/chat_agent-7nKEGmDGN1/...
+      const match = url.match(/runtime%2F([^/]+)/)
+      if (match && match[1]) {
+        // URL decode and return the runtime name
+        return decodeURIComponent(match[1])
+      }
+      // Fallback: try to extract hostname
+      const urlObj = new URL(url)
+      return urlObj.hostname.split('.')[0]
+    } catch {
+      return 'agent'
+    }
+  }
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -81,7 +102,6 @@ function App() {
       // })
 
       // Call the agent directly (for production)
-      const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2Fchat_agent-7nKEGmDGN1/invocations?qualifier=DEFAULT"
       const response = await fetch(`${AGENT_URL}`, {
         method: 'POST',
         headers: {
@@ -242,7 +262,7 @@ function App() {
         </form>
         <div className="footer-info">
           <span className="status-indicator"></span>
-          Connected to agent on <code>localhost:8080</code>
+          Connected to agent <code>{getAgentDisplayName(AGENT_URL)}</code>
         </div>
       </footer>
     </div>
