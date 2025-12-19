@@ -255,6 +255,24 @@
   white-space: pre-wrap;
 }
 
+.message-link {
+  color: var(--accent);
+  text-decoration: underline;
+  transition: all 0.2s var(--ease-smooth);
+  cursor: pointer;
+  word-break: break-all;
+}
+
+.message-link:hover {
+  color: var(--accent-light);
+  text-decoration: none;
+  text-shadow: 0 0 10px rgba(227, 24, 55, 0.3);
+}
+
+.message-link:active {
+  color: var(--accent);
+}
+
 /* Loading */
 .message.loading {
   border-color: var(--accent);

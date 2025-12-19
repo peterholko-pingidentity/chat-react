@@ -216,6 +216,34 @@ function App() {
     inputRef.current?.focus()
   }
 
+  // ****************************************
+  // Convert https:// URLs to clickable links
+  // ****************************************
+  const renderMessageWithLinks = (text) => {
+    // Regex to match https:// URLs
+    const urlRegex = /(https:\/\/[^\s]+)/g
+    const parts = text.split(urlRegex)
+
+    return parts.map((part, index) => {
+      // Check if this part is a URL
+      if (part.match(urlRegex)) {
+        return (
+          <a
+            key={index}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="message-link"
+          >
+            {part}
+          </a>
+        )
+      }
+      // Return plain text
+      return part
+    })
+  }
+
   return (
     <div className="app">
       <header className="header">
@@ -272,7 +300,7 @@ function App() {
                     </span>
                   </div>
                   <div className="message-content">
-                    {message.content}
+                    {renderMessageWithLinks(message.content)}
                   </div>
                 </div>
               ))}
