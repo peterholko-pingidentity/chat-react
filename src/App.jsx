@@ -9,18 +9,71 @@ function App() {
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
-  // Add this to capture query parameters
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    urlParams.forEach((value, key) => {
-      console.log(`Param -> ${key} : ${value}`)
-    })
-    console.log('=== URL Query Parameters ===')    
-    console.log('Full URL:', window.location.href)
-  }, []) // Empty dependency array = runs once on mount
-
   // Agent URL configuration
   const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2Fchat_agent-7nKEGmDGN1/invocations?qualifier=DEFAULT"
+
+  const GLOBAL_ACCESS_TOKEN = ""
+
+  // Check URL Parameters for auth code
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    
+    // Log all parameters
+    urlParams.forEach((value, key) => {
+      console.log(`Params -> ${key} : ${value}`)
+    })
+
+    // Check if we have an authorization code
+    const authCode = urlParams.get('code')
+    if (authCode) {
+      console.log('Authorization code found: ', authCode)
+      exchangeAuthCodeForToken(authCode)
+    }
+  }, [])
+
+  const exchangeAuthCodeForToken = async (authCode) => {
+    try {
+      console.log('Exchanging authorization code for access token...')
+      
+      const response = await fetch('https://auth.pingone.com/484c8d69-2783-4b55-b787-be71c4cd1532/as/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': 'Basic YzI4ZDZhZjEtMzI4Mi00OTUxLWFjNTQtMDI2MDE2NTAzNzA5OlJyZnktYWJMbTRDVVBKeTBwa1BEVWhvampXVVNwOXEwLUx4bHhWS2Z2QUdXeTA3VWdyTkRhWXl5RjE0YlJ4ZWI='
+        },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code: authCode,
+          redirect_uri: 'https://hackathon2025.ping-tpp.com'
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Token exchange failed:', errorData)
+        throw new Error(`Failed to exchange authorization code: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('Token exchange successful!')
+      console.log(data)
+      console.log('Access token received:', data.access_token)
+      console.log('Token type:', data.token_type)
+      console.log('Expires in:', data.expires_in)
+      
+      // Store the access token
+      setAccessToken(data.access_token)
+      
+      // Clean up the URL by removing the code parameter
+      const newUrl = window.location.origin + window.location.pathname
+      window.history.replaceState({}, document.title, newUrl)
+      
+      console.log('URL cleaned up, code parameter removed')
+    } catch (err) {
+      console.error('Error exchanging authorization code:', err)
+      setError(err.message)
+    }
+  }
 
   // Extract a short agent name from the URL
   const getAgentDisplayName = (url) => {
@@ -49,7 +102,15 @@ function App() {
   }, [])
 
   const getAccessToken = async () => {
+    // If we already have a token from auth code flow, use it
+    if (accessToken) {
+      console.log('Using existing access token from authorization code flow')
+      return accessToken
+    }
+
+    // Otherwise fall back to client credentials flow
     try {
+      console.log('Using client credentials flow to get access token')
       const response = await fetch('https://auth.pingone.com/484c8d69-2783-4b55-b787-be71c4cd1532/as/token', {
         method: 'POST',
         headers: {
@@ -98,15 +159,6 @@ function App() {
       // Get fresh access token
       const accessToken = await getAccessToken()
 
-      // Call the agent via proxy (for local development)
-      // const response = await fetch('/api', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ prompt: userMessage })
-      // })
-
       // Call the agent directly (for production)
       const response = await fetch(`${AGENT_URL}`, {
         method: 'POST',
@@ -115,7 +167,7 @@ function App() {
           'Authorization': `Bearer ${accessToken}`,
           'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': 'session-12345678901234567890123456789012'
         },
-        body: JSON.stringify({ prompt: userMessage })
+        body: JSON.stringify({ prompt: userMessage, accessToken: GLOBAL_ACCESS_TOKEN })
       })
 
       if (!response.ok) {
