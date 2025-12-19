@@ -29,9 +29,9 @@
 .welcome-icon {
   font-size: 5rem;
   color: var(--accent);
-  animation: pulse 2s ease-in-out infinite;
+  animation: iconGlow 2s ease-in-out infinite;
   margin-bottom: 1.5rem;
-  text-shadow: 0 0 20px rgba(227, 24, 55, 0.3);
+  text-shadow: 0 0 20px rgba(227, 24, 55, 0.6);
 }
 
 .davinci-welcome h1 {
@@ -111,6 +111,36 @@
   }
 }
 
+@keyframes iconGlow {
+  0%, 100% {
+    text-shadow:
+      0 0 20px rgba(227, 24, 55, 0.6),
+      0 0 40px rgba(227, 24, 55, 0.4),
+      0 0 60px rgba(227, 24, 55, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    text-shadow:
+      0 0 30px rgba(227, 24, 55, 0.9),
+      0 0 60px rgba(227, 24, 55, 0.6),
+      0 0 90px rgba(227, 24, 55, 0.3);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes dotGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(227, 24, 55, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 15px rgba(227, 24, 55, 0.8),
+      0 0 25px rgba(227, 24, 55, 0.4);
+    transform: scale(1.2);
+  }
+}
+
 /* Loading State */
 .davinci-loading {
   text-align: center;
@@ -120,8 +150,9 @@
 .loading-icon {
   font-size: 4rem;
   color: var(--accent);
-  animation: pulse 2s ease-in-out infinite;
+  animation: iconGlow 2s ease-in-out infinite;
   margin-bottom: 1.5rem;
+  text-shadow: 0 0 20px rgba(227, 24, 55, 0.6);
 }
 
 .davinci-loading h2 {
@@ -144,7 +175,8 @@
   height: 8px;
   border-radius: 50%;
   background: var(--accent);
-  animation: pulse 1.4s ease-in-out infinite;
+  animation: dotGlow 1.4s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(227, 24, 55, 0.5);
 }
 
 .davinci-loading .loading-dots span:nth-child(1) {
