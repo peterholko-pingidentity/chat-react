@@ -1,17 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
 import './App.css'
+import { setUserToken, getUserToken } from './global'
 
 function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [globalAccessToken, setAccessToken] = useState(null)
+  const [userAccessToken, setAccessToken] = useState(null)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
   // Agent URL configuration
-  const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2Fchat_agent-7nKEGmDGN1/invocations?qualifier=DEFAULT"
+  const AGENT_URL = "https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A574076504146%3Aruntime%2FChatAgent11-Hg1jfJ93FZ/invocations?qualifier=DEFAULT"
 
   // ****************************************
   // Check URL Parameters for auth code
@@ -63,14 +64,13 @@ function App() {
       console.log('Token type:', data.token_type)
       console.log('Expires in:', data.expires_in)
       
-      // Store the access token
-      setAccessToken(data.access_token)
+      setUserToken(data.access_token)
+      console.log('Setting user token: ', userToken)
       
       // Clean up the URL by removing the code parameter
       const newUrl = window.location.origin + window.location.pathname
       window.history.replaceState({}, document.title, newUrl)
       console.log('URL cleaned up, code parameter removed')
-      
     } catch (err) {
       console.error('Error exchanging authorization code:', err)
       setError(err.message)
@@ -167,11 +167,11 @@ function App() {
       const response = await fetch(`${AGENT_URL}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
           'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': 'session-12345678901234567890123456789012'
         },
-        body: JSON.stringify({ prompt: userMessage, accessToken: globalAccessToken })
+        body: JSON.stringify({ prompt: userMessage, accessToken: getUserToken() })
       })
 
       if (!response.ok) {
@@ -179,12 +179,16 @@ function App() {
       }
 
       const data = await response.json()
-      
+      console.log('Agent response: ', data)
+
+      const jsonData = JSON.parse(data.response)
+      console.log('JSON Data: ', jsonData)
+
       // Add agent response
       const agentMessage = {
         id: Date.now() + 1,
         role: 'agent',
-        content: data.response.content[0].text || 'No response received',
+        content: jsonData.content[0].text || 'No response received',
         timestamp: new Date()
       }
       setMessages(prev => [...prev, agentMessage])

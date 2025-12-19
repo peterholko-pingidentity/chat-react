@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { daVinciConfig, getAuthApiRoot } from './config'
 import './DaVinciAuth.css'
+import { setUserToken } from './global'
 
 function DaVinciAuth({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -86,6 +87,7 @@ function DaVinciAuth({ children }) {
 
   const successCallback = (response) => {
     console.log('DaVinci authentication successful:', response)
+    setUserToken(response.userToken)
     setIsAuthenticated(true)
     setError(null)
     setShowWidget(false)
